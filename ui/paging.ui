@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="page">
+   <layout class="QVBoxLayout" name="layout133">
+     <property name="leftMargin"><number>0</number></property>
+     <property name="topMargin"><number>0</number></property>
+     <property name="rightMargin"><number>0</number></property>
+     <property name="bottomMargin"><number>0</number></property>
+     <property name="spacing"><number>0</number></property>
+     <item>
+       <widget class="QFrame" name="band">
+         <property name="minimumSize"><size><width>0</width><height>88</height></size></property>
+         <property name="maximumSize"><size><width>16777215</width><height>88</height></size></property>
+         <property name="card" stdset="0"><string>band</string></property>
+         <layout class="QHBoxLayout" name="layout134">
+           <property name="leftMargin"><number>22</number></property>
+           <property name="topMargin"><number>12</number></property>
+           <property name="rightMargin"><number>22</number></property>
+           <property name="bottomMargin"><number>12</number></property>
+           <property name="spacing"><number>26</number></property>
+           <item>
+             <widget class="QWidget" name="titleBlock">
+               <layout class="QVBoxLayout" name="layout135">
+                 <property name="leftMargin"><number>0</number></property>
+                 <property name="topMargin"><number>0</number></property>
+                 <property name="rightMargin"><number>0</number></property>
+                 <property name="bottomMargin"><number>0</number></property>
+                 <property name="spacing"><number>2</number></property>
+                 <item>
+                   <widget class="QLabel" name="lblTitle">
+                     <property name="text"><string>PAGEPORT</string></property>
+                     <property name="wordWrap"><bool>false</bool></property>
+                     <property name="kind" stdset="0"><string>h1</string></property>
+                   </widget>
+                 </item>
+                 <item>
+                   <widget class="QLabel" name="lblSub">
+                     <property name="text"><string>PAGING / ADDRESS TRANSLATOR</string></property>
+                     <property name="wordWrap"><bool>false</bool></property>
+                     <property name="kind" stdset="0"><string>eyebrow</string></property>
+                   </widget>
+                 </item>
+               </layout>
+             </widget>
+           </item>
+           <item>
+             <spacer name="spacer130"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>20</height></size></property></spacer>
+           </item>
+           <item>
+             <widget class="QWidget" name="addrBox">
+               <layout class="QVBoxLayout" name="layout136">
+                 <property name="leftMargin"><number>0</number></property>
+                 <property name="topMargin"><number>0</number></property>
+                 <property name="rightMargin"><number>0</number></property>
+                 <property name="bottomMargin"><number>0</number></property>
+                 <property name="spacing"><number>4</number></property>
+                 <item>
+                   <widget class="QLabel" name="lblAddr">
+                     <property name="text"><string>LOGICAL ADDRESS</string></property>
+                     <property name="wordWrap"><bool>false</bool></property>
+                     <property name="kind" stdset="0"><string>eyebrow</string></property>
+                   </widget>
+                 </item>
+                 <item>
+                   <widget class="QWidget" name="addrRow">
+                     <layout class="QHBoxLayout" name="layout137">
+                       <property name="leftMargin"><number>0</number></property>
+                       <property name="topMargin"><number>0</number></property>
+                       <property name="rightMargin"><number>0</number></property>
+                       <property name="bottomMargin"><number>0</number></property>
+                       <property name="spacing"><number>16</number></property>
+                       <item>
+                         <widget class="QLineEdit" name="edAddr">
+                           <property name="text"><string></string></property>
+                           <property name="placeholderText"><string>e.g. 2172</string></property>
+                           <property name="minimumSize"><size><width>200</width><height>38</height></size></property>
+                           <property name="maximumSize"><size><width>200</width><height>38</height></size></property>
+                         </widget>
+                       </item>
+                       <item>
+                         <widget class="QComboBox" name="cmbPage">
+                           <property name="editable"><bool>true</bool></property>
+                           <property name="minimumSize"><size><width>190</width><height>38</height></size></property>
+                           <property name="maximumSize"><size><width>190</width><height>38</height></size></property>
+                         </widget>
+                       </item>
+                     </layout>
+                   </widget>
+                 </item>
+               </layout>
+             </widget>
+           </item>
+           <item>
+             <widget class="QPushButton" name="btnTranslate">
+               <property name="text"><string>Translate address →</string></property>
+               <property name="minimumSize"><size><width>278</width><height>40</height></size></property>
+               <property name="maximumSize"><size><width>278</width><height>40</height></size></property>
+               <property name="role" stdset="0"><string>dark</string></property>
+             </widget>
+           </item>
+         </layout>
+       </widget>
+     </item>
+     <item>
+       <widget class="QWidget" name="pad">
+         <layout class="QVBoxLayout" name="layout138" stretch="0,1">
+           <property name="leftMargin"><number>22</number></property>
+           <property name="topMargin"><number>12</number></property>
+           <property name="rightMargin"><number>22</number></property>
+           <property name="bottomMargin"><number>8</number></property>
+           <property name="spacing"><number>12</number></property>
+           <item>
+             <widget class="QWidget" name="steps">
+               <layout class="QHBoxLayout" name="layout139" stretch="1,0,1,0,1">
+                 <property name="leftMargin"><number>0</number></property>
+                 <property name="topMargin"><number>0</number></property>
+                 <property name="rightMargin"><number>0</number></property>
+                 <property name="bottomMargin"><number>0</number></property>
+                 <property name="spacing"><number>10</number></property>
+                 <item>
+                   <widget class="QFrame" name="step1">
+                     <property name="card" stdset="0"><string>shadow</string></property>
+                     <layout class="QVBoxLayout" name="layout140">
+                       <property name="leftMargin"><number>16</number></property>
+                       <property name="topMargin"><number>12</number></property>
+                       <property name="rightMargin"><number>16</number></property>
+                       <property name="bottomMargin"><number>12</number></property>
+                       <property name="spacing"><number>8</number></property>
+                       <item>
+                         <widget class="QLabel" name="lblTag1">
+                           <property name="text"><string>01 / SPLIT</string></property>
+                           <property name="wordWrap"><bool>false</bool></property>
+                           <property name="kind" stdset="0"><string>eyebrow</string></property>
+                         </widget>
+                       </item>
+                       <item>
+                         <widget class="QLabel" name="lblPage">
+                           <property name="text"><string>Page 2</string></property>
+                           <property name="wordWrap"><bool>false</bool></property>
+                           <property name="kind" stdset="0"><string>big</string></property>
+                         </widget>
+                       </item>
+                       <item>
+                         <widget class="QLabel" name="lblOffset">
+                           <property name="text"><string>Offset: 124 bytes</string></property>
+                           <property name="wordWrap"><bool>false</bool></property>
+                           <property name="kind" stdset="0"><string>muted</string></property>
+                         </widget>
+                       </item>
+                     </layout>
+                   </widget>
+                 </item>
+                 <item>
+                   <widget class="QLabel" name="arr1">
+                     <property name="text"><string>→</string></property>
+                     <property name="wordWrap"><bool>false</bool></property>
+                     <property name="kind" stdset="0"><string>arrow</string></property>
+                   </widget>
+                 </item>
+                 <item>
+                   <widget class="QFrame" name="step2">
+                     <property name="card" stdset="0"><string>shadow</string></property>
+                     <layout class="QVBoxLayout" name="layout141">
+                       <property name="leftMargin"><number>16</number></property>
+                       <property name="topMargin"><number>12</number></property>
+                       <property name="rightMargin"><number>16</number></property>
+                       <property name="bottomMargin"><number>12</number></property>
+                       <property name="spacing"><number>8</number></property>
+                       <item>
+                         <widget class="QLabel" name="lblTag2">
+                           <property name="text"><string>02 / LOOKUP</string></property>
+                           <property name="wordWrap"><bool>false</bool></property>
+                           <property name="kind" stdset="0"><string>eyebrow</string></property>
+                         </widget>
+                       </item>
+                       <item>
+                         <widget class="QLabel" name="lblFrame">
+                           <property name="text"><string>Frame 5</string></property>
+                           <property name="wordWrap"><bool>false</bool></property>
+                           <property name="kind" stdset="0"><string>big</string></property>
+                         </widget>
+                       </item>
+                       <item>
+                         <widget class="QLabel" name="lblEntry">
+                           <property name="text"><string>Page table entry: valid</string></property>
+                           <property name="wordWrap"><bool>false</bool></property>
+                           <property name="kind" stdset="0"><string>muted</string></property>
+                         </widget>
+                       </item>
+                     </layout>
+                   </widget>
+                 </item>
+                 <item>
+                   <widget class="QLabel" name="arr2">
+                     <property name="text"><string>→</string></property>
+                     <property name="wordWrap"><bool>false</bool></property>
+                     <property name="kind" stdset="0"><string>arrow</string></property>
+                   </widget>
+                 </item>
+                 <item>
+                   <widget class="QFrame" name="step3">
+                     <property name="card" stdset="0"><string>shadowaccent</string></property>
+                     <layout class="QVBoxLayout" name="layout142">
+                       <property name="leftMargin"><number>16</number></property>
+                       <property name="topMargin"><number>12</number></property>
+                       <property name="rightMargin"><number>16</number></property>
+                       <property name="bottomMargin"><number>12</number></property>
+                       <property name="spacing"><number>8</number></property>
+                       <item>
+                         <widget class="QLabel" name="lblTag3">
+                           <property name="text"><string>03 / RESOLVE</string></property>
+                           <property name="wordWrap"><bool>false</bool></property>
+                           <property name="kind" stdset="0"><string>eyebrow</string></property>
+                         </widget>
+                       </item>
+                       <item>
+                         <widget class="QLabel" name="lblPhys">
+                           <property name="text"><string>5,244 B</string></property>
+                           <property name="wordWrap"><bool>false</bool></property>
+                           <property name="kind" stdset="0"><string>big</string></property>
+                         </widget>
+                       </item>
+                       <item>
+                         <widget class="QLabel" name="lblPhysSub">
+                           <property name="text"><string>Physical address</string></property>
+                           <property name="wordWrap"><bool>false</bool></property>
+                           <property name="kind" stdset="0"><string>muted</string></property>
+                         </widget>
+                       </item>
+                     </layout>
+                   </widget>
+                 </item>
+               </layout>
+             </widget>
+           </item>
+           <item>
+             <widget class="QWidget" name="body">
+               <layout class="QHBoxLayout" name="layout143" stretch="0,1">
+                 <property name="leftMargin"><number>0</number></property>
+                 <property name="topMargin"><number>0</number></property>
+                 <property name="rightMargin"><number>0</number></property>
+                 <property name="bottomMargin"><number>0</number></property>
+                 <property name="spacing"><number>16</number></property>
+                 <item>
+                   <widget class="QFrame" name="dirCard">
+                     <property name="minimumSize"><size><width>335</width><height>0</height></size></property>
+                     <property name="maximumSize"><size><width>335</width><height>16777215</height></size></property>
+                     <property name="card" stdset="0"><string>shadow</string></property>
+                     <layout class="QVBoxLayout" name="layout144">
+                       <property name="leftMargin"><number>14</number></property>
+                       <property name="topMargin"><number>12</number></property>
+                       <property name="rightMargin"><number>14</number></property>
+                       <property name="bottomMargin"><number>12</number></property>
+                       <property name="spacing"><number>6</number></property>
+                       <item>
+                         <widget class="QLabel" name="lblDir">
+                           <property name="text"><string>PAGE DIRECTORY</string></property>
+                           <property name="wordWrap"><bool>false</bool></property>
+                           <property name="kind" stdset="0"><string>eyebrow</string></property>
+                         </widget>
+                       </item>
+                       <item>
+                         <widget class="QTableWidget" name="tblPages">
+                         </widget>
+                       </item>
+                       <item>
+                         <widget class="QWidget" name="pgBtns">
+                           <layout class="QHBoxLayout" name="layout145">
+                             <property name="leftMargin"><number>0</number></property>
+                             <property name="topMargin"><number>0</number></property>
+                             <property name="rightMargin"><number>0</number></property>
+                             <property name="bottomMargin"><number>0</number></property>
+                             <property name="spacing"><number>8</number></property>
+                             <item>
+                               <widget class="QPushButton" name="btnAddPage">
+                                 <property name="text"><string>+ Page</string></property>
+                                 <property name="role" stdset="0"><string>mini</string></property>
+                               </widget>
+                             </item>
+                             <item>
+                               <widget class="QPushButton" name="btnDelPage">
+                                 <property name="text"><string>− Page</string></property>
+                                 <property name="role" stdset="0"><string>mini</string></property>
+                               </widget>
+                             </item>
+                             <item>
+                               <spacer name="spacer131"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>20</height></size></property></spacer>
+                             </item>
+                           </layout>
+                         </widget>
+                       </item>
+                       <item>
+                         <widget class="QLabel" name="lblNote">
+                           <property name="text"><string></string></property>
+                           <property name="wordWrap"><bool>true</bool></property>
+                           <property name="kind" stdset="0"><string>small</string></property>
+                         </widget>
+                       </item>
+                     </layout>
+                   </widget>
+                 </item>
+                 <item>
+                   <widget class="QWidget" name="rightCol">
+                     <layout class="QVBoxLayout" name="layout146" stretch="1,0">
+                       <property name="leftMargin"><number>0</number></property>
+                       <property name="topMargin"><number>0</number></property>
+                       <property name="rightMargin"><number>0</number></property>
+                       <property name="bottomMargin"><number>0</number></property>
+                       <property name="spacing"><number>12</number></property>
+                       <item>
+                         <widget class="QFrame" name="ramCard">
+                           <property name="card" stdset="0"><string>shadow</string></property>
+                           <layout class="QVBoxLayout" name="layout147">
+                             <property name="leftMargin"><number>14</number></property>
+                             <property name="topMargin"><number>12</number></property>
+                             <property name="rightMargin"><number>14</number></property>
+                             <property name="bottomMargin"><number>12</number></property>
+                             <property name="spacing"><number>6</number></property>
+                             <item>
+                               <widget class="QWidget" name="ramHead">
+                                 <layout class="QHBoxLayout" name="layout148">
+                                   <property name="leftMargin"><number>0</number></property>
+                                   <property name="topMargin"><number>0</number></property>
+                                   <property name="rightMargin"><number>0</number></property>
+                                   <property name="bottomMargin"><number>0</number></property>
+                                   <property name="spacing"><number>8</number></property>
+                                   <item>
+                                     <widget class="QLabel" name="lblRam">
+                                       <property name="text"><string>PHYSICAL RAM</string></property>
+                                       <property name="wordWrap"><bool>false</bool></property>
+                                       <property name="kind" stdset="0"><string>eyebrow</string></property>
+                                     </widget>
+                                   </item>
+                                   <item>
+                                     <spacer name="spacer132"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>20</height></size></property></spacer>
+                                   </item>
+                                   <item>
+                                     <widget class="QLabel" name="lblFrames">
+                                       <property name="text"><string>FRAMES</string></property>
+                                       <property name="wordWrap"><bool>false</bool></property>
+                                       <property name="kind" stdset="0"><string>eyebrow</string></property>
+                                     </widget>
+                                   </item>
+                                   <item>
+                                     <widget class="QSpinBox" name="spinFrames">
+                                       <property name="minimumSize"><size><width>78</width><height>28</height></size></property>
+                                       <property name="maximumSize"><size><width>78</width><height>28</height></size></property>
+                                       <property name="minimum"><number>1</number></property>
+                                       <property name="maximum"><number>100000</number></property>
+                                       <property name="value"><number>6</number></property>
+                                     </widget>
+                                   </item>
+                                   <item>
+                                     <widget class="QLabel" name="lblRamInfo">
+                                       <property name="text"><string>6 frames × 1,024 bytes</string></property>
+                                       <property name="wordWrap"><bool>false</bool></property>
+                                       <property name="kind" stdset="0"><string>eyebrow</string></property>
+                                     </widget>
+                                   </item>
+                                 </layout>
+                               </widget>
+                             </item>
+                             <item>
+                               <widget class="QScrollArea" name="ramScroll">
+                                 <property name="widgetResizable"><bool>true</bool></property>
+                                 <property name="frameShape"><enum>QFrame::NoFrame</enum></property>
+                                 <widget class="QWidget" name="ramHost">
+                                   <layout class="QGridLayout" name="layout149">
+                                     <property name="leftMargin"><number>0</number></property>
+                                     <property name="topMargin"><number>0</number></property>
+                                     <property name="rightMargin"><number>4</number></property>
+                                     <property name="bottomMargin"><number>4</number></property>
+                                     <property name="spacing"><number>10</number></property>
+                                   </layout>
+                                 </widget>
+                               </widget>
+                             </item>
+                           </layout>
+                         </widget>
+                       </item>
+                       <item>
+                         <widget class="QFrame" name="resolved">
+                           <property name="minimumSize"><size><width>0</width><height>96</height></size></property>
+                           <property name="maximumSize"><size><width>16777215</width><height>96</height></size></property>
+                           <property name="card" stdset="0"><string>shadowaccent</string></property>
+                           <layout class="QVBoxLayout" name="layout150">
+                             <property name="leftMargin"><number>16</number></property>
+                             <property name="topMargin"><number>12</number></property>
+                             <property name="rightMargin"><number>16</number></property>
+                             <property name="bottomMargin"><number>12</number></property>
+                             <property name="spacing"><number>6</number></property>
+                             <item>
+                               <widget class="QLabel" name="lblResTag">
+                                 <property name="text"><string>ADDRESS RESOLVED / VALID</string></property>
+                                 <property name="wordWrap"><bool>false</bool></property>
+                                 <property name="kind" stdset="0"><string>eyebrow</string></property>
+                               </widget>
+                             </item>
+                             <item>
+                               <widget class="QLabel" name="lblFormula">
+                                 <property name="text"><string>5 × 1,024 + 124 = 5,244</string></property>
+                                 <property name="wordWrap"><bool>false</bool></property>
+                                 <property name="kind" stdset="0"><string>big2</string></property>
+                               </widget>
+                             </item>
+                             <item>
+                               <widget class="QLabel" name="lblFormula2">
+                                 <property name="text"><string>Page = floor(2172 / 1024)      Offset = 2172 mod 1024</string></property>
+                                 <property name="wordWrap"><bool>false</bool></property>
+                                 <property name="kind" stdset="0"><string>small</string></property>
+                               </widget>
+                             </item>
+                           </layout>
+                         </widget>
+                       </item>
+                     </layout>
+                   </widget>
+                 </item>
+               </layout>
+             </widget>
+           </item>
+         </layout>
+       </widget>
+     </item>
+   </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
