@@ -6,6 +6,8 @@ from gui.pages.base import BasePage, safe
 from gui.widgets.charts import MemorySpaceWidget
 from gui.widgets.common import ClickableFrame, apply_shadows, clear_layout, mk_label
 from models.records import Segment
+from PySide6.QtWidgets import QPushButton
+from utils.parsers import parse_segments
 from utils.validators import ValidationError, parse_int
 
 SEGCOL = ["#84d9e0", "#c5b3f2", "#ffa3c4", "#ffcc62", "#c4f06a", "#ff9970", "#a9b4f9", "#9be3b0"]
@@ -27,6 +29,12 @@ class SegmentationPage(BasePage):
         self.w.btnProbe.clicked.connect(self.probe)
         self.w.edOffset.returnPressed.connect(self.probe)
         self.w.btnAddSeg.clicked.connect(self.add_segment)
+        self.btn_bulk = QPushButton("Edit as text…")
+        self.btn_bulk.setProperty("role", "link")
+        self.btn_bulk.setToolTip("Type or paste the whole segment table: id name base limit")
+        self.btn_bulk.clicked.connect(self.bulk_edit)
+        lay = self.w.explorer.layout()
+        lay.insertWidget(lay.indexOf(self.w.btnAddSeg) + 1, self.btn_bulk)
         self.space.pal = self.pal
         self.set_segments([], None)
 
@@ -175,6 +183,24 @@ class SegmentationPage(BasePage):
         self.set_segments([s for s in self.segs if s.seg_id != sid], None)
         self.say(f"Segment {sid} removed")
 
+    @safe
+    def bulk_edit(self):
+        """The whole segment table as text (prefilled with the current segments; applying replaces them)."""
+        rev = {"READ ONLY": "r", "READ / WRITE": "rw", "READ / EXECUTE": "rx", "READ / WRITE / EXECUTE": "rwx"}
+        cur = "\n".join(f"{s.seg_id} {s.name or '-'} {s.base} {s.limit} {rev.get(s.perms, 'rw')}" for s in self.segs).replace(" - ", " ")
+        fields = [dict(key="text", label="Segments", kind="multi", default=cur, height=220)]
+
+        def parse(v):
+            segs = parse_segments(v["text"])
+            validate_table(segs)
+            return segs
+        r = self.ask("Edit segment table as text", fields, parse,
+                     "One segment per line:  id  [name]  base  limit  [r | rw | rx | rwx].  Examples:  0 Code 1000 600 rx   or just   1 2400 400.  "
+                     "Segments must not overlap in physical memory.")
+        if r:
+            self.set_segments(r, r[0].seg_id)
+            self.say(f"Segment table entered: {len(r)} segments")
+
     def reset(self):
         self.set_segments([], None)
         self.say("Segment table cleared. Use “+ Add segment” to define segments.")
@@ -200,7 +226,7 @@ class SegmentationPage(BasePage):
 
     def menus(self):
         return {"File": [("Reset", self.reset)],
-                "Segments": [("Add segment…", self.add_segment), ("Show segment table…", self.table_dialog)],
+                "Segments": [("Add segment…", self.add_segment), ("Edit as text…", self.bulk_edit), ("Show segment table…", self.table_dialog)],
                 "Address probe": [("Probe", self.probe)], "Protection": [("Show protection flags", self.protection_dialog)],
                 "Help": [("About", lambda: self.show_text("Segmentation", "physical = base + offset, valid only when 0 ≤ offset < limit.\n"
                          "Segments may not overlap in physical memory. Double-click a segment to edit it."))]}

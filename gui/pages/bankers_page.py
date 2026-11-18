@@ -7,7 +7,10 @@ from PySide6.QtWidgets import (QAbstractItemView, QFrame, QHBoxLayout, QLabel, Q
 from algorithms.bankers_algorithm import is_safe, request_resources
 from gui.pages.base import BasePage, safe
 from gui.widgets.common import FlowLayout, clear_layout, mk_label
+from algorithms.bankers_algorithm import validate_state
 from utils.helpers import resource_names
+from utils.parsers import parse_matrix, parse_vector
+from PySide6.QtWidgets import QPushButton
 from utils.validators import ValidationError, parse_int
 
 
@@ -40,6 +43,11 @@ class BankersPage(BasePage):
         self.pathflow = QWidget()
         FlowLayout(self.pathflow, 10)
         w.pathHost.layout().addWidget(self.pathflow)
+        self.btn_bulk = QPushButton("Enter matrices…")
+        self.btn_bulk.setProperty("role", "mini")
+        self.btn_bulk.setToolTip("Type or paste Available, Allocation and Maximum in one go")
+        self.btn_bulk.clicked.connect(self.bulk_edit)
+        w.auHead.layout().insertWidget(2, self.btn_bulk)
         w.btnAddProc.clicked.connect(self.add_proc)
         w.btnDelProc.clicked.connect(self.del_proc)
         w.btnAddRes.clicked.connect(self.add_res)
@@ -260,6 +268,29 @@ class BankersPage(BasePage):
         except ValidationError:
             raise ValidationError("Fix the invalid cells in the table first.")
 
+    @safe
+    def bulk_edit(self):
+        """Enter the whole system at once: Available vector + Allocation and Maximum matrices (one process per line)."""
+        try:
+            av, al, mx = self.read_state()
+            cur = (vec(av), "\n".join(vec(r) for r in al), "\n".join(vec(r) for r in mx))
+        except ValidationError:
+            cur = ("", "", "")
+        fields = [dict(key="av", label="Available", default=cur[0], hint="e.g. 3 3 2"),
+                  dict(key="al", label="Allocation", kind="multi", default=cur[1], height=130, hint="one process per line"),
+                  dict(key="mx", label="Maximum", kind="multi", default=cur[2], height=130, hint="one process per line")]
+
+        def parse(v):
+            a, b, c = parse_vector(v["av"], "Available"), parse_matrix(v["al"], "Allocation"), parse_matrix(v["mx"], "Maximum")
+            validate_state(a, b, c)
+            return a, b, c
+        r = self.ask("Enter Banker's matrices", fields, parse,
+                     "Available is one line of numbers (one per resource). Allocation and Maximum have one line per process "
+                     "(P0, P1, …) with one number per resource. Separate numbers with spaces, commas or tabs.")
+        if r:
+            self.set_state(*r)
+            self.say(f"System entered: {len(r[1])} processes, {len(r[0])} resource types")
+
     def reset(self):
         self.set_state([0] * 3, [], [])
         self.say("Reset to an empty system (0 processes, 3 resources).")
@@ -296,7 +327,7 @@ class BankersPage(BasePage):
 
     def menus(self):
         return {"File": [("Reset", self.reset)],
-                "Resource vault": [("Add resource type", self.add_res), ("Remove last resource type", self.del_res)],
+                "Resource vault": [("Enter matrices… (paste all)", self.bulk_edit), ("Add resource type", self.add_res), ("Remove last resource type", self.del_res)],
                 "Request sandbox": [("Check this request", self.check_request), ("Apply granted request", self.apply_request)],
                 "Safety audit": [("Re-run safety algorithm", self.recompute), ("Add process", self.add_proc), ("Remove selected process", self.del_proc)],
                 "Help": [("About", lambda: self.show_text("Banker’s algorithm",

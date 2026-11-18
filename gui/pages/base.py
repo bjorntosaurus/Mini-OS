@@ -33,7 +33,7 @@ class FormDialog(QDialog):
     def __init__(self, parent, title, fields, intro=None):
         super().__init__(parent)
         self.setWindowTitle(title)
-        self.setMinimumWidth(460)
+        self.setMinimumWidth(520)
         lay = QVBoxLayout(self)
         if intro:
             lb = QLabel(intro)
@@ -47,7 +47,8 @@ class FormDialog(QDialog):
             k, kind = f["key"], f.get("kind", "text")
             if kind == "multi":
                 w = QPlainTextEdit(str(f.get("default", "")))
-                w.setMinimumHeight(70)
+                w.setMinimumHeight(f.get("height", 70))
+                w.setStyleSheet("font-family:'JetBrains Mono',Consolas,monospace;")
             elif kind == "combo":
                 w = QComboBox()
                 w.addItems(f["items"])

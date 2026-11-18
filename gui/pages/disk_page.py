@@ -34,6 +34,9 @@ class DiskPage(BasePage):
             getattr(w, "btn" + key).clicked.connect(lambda _=False, k=key: self.set_algo(k))
         w.btnTrace.clicked.connect(self.trace)
         w.btnEdit.clicked.connect(self.edit_queue)
+        for key in NAMES:
+            getattr(w, "btn" + key).setFixedWidth(88)
+        w.btnTrace.setFixedWidth(170)
         self.plot.pal = self.pal
         self.update_side()
         self.clear_display()

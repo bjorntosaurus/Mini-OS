@@ -4,7 +4,7 @@ import time
 
 from PySide6.QtCore import QEvent, QPoint, QRect, QSize, Qt, QTimer, QTime, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QFont, QIcon, QPainter, QPixmap
-from PySide6.QtWidgets import (QApplication, QFrame, QGraphicsDropShadowEffect, QGraphicsOpacityEffect, QHBoxLayout, QInputDialog, QLabel,
+from PySide6.QtWidgets import (QApplication, QFrame, QScrollArea, QGraphicsDropShadowEffect, QGraphicsOpacityEffect, QHBoxLayout, QInputDialog, QLabel,
                                QMenu, QMessageBox, QPushButton, QSizeGrip, QVBoxLayout, QWidget)
 
 from gui.pages.bankers_page import BankersPage
@@ -143,9 +143,23 @@ class XPWindow(QFrame):
             w.style().unpolish(w)
             w.style().polish(w)
 
+    def set_body(self, widget):
+        """Host `widget` in a scroll area: if the window is made smaller than the content needs, scroll bars appear
+        instead of the content being cut off."""
+        sa = QScrollArea()
+        sa.setWidgetResizable(True)
+        sa.setFrameShape(QFrame.NoFrame)
+        sa.setStyleSheet("QScrollArea{background:transparent;border:none;}"
+                         "QScrollBar:vertical{width:14px;background:#ece9d8;} QScrollBar:horizontal{height:14px;background:#ece9d8;}"
+                         "QScrollBar::handle{background:#b9c8f0;border:1px solid #6b8bd8;min-height:30px;min-width:30px;}"
+                         "QScrollBar::add-line,QScrollBar::sub-line{width:0;height:0;}")
+        sa.setWidget(widget)
+        self.w.bodyHost.layout().addWidget(sa)
+        self.setMinimumSize(360, 240)
+
     def set_page(self, page):
         self.page = page
-        self.w.bodyHost.layout().addWidget(page)
+        self.set_body(page)
         page.status.connect(self.w.lblStatus.setText)
         self.build_menus(page.menus() or {})
 
@@ -281,7 +295,7 @@ class XPExplorer(QWidget):
         self.w.xpTip.setVisible(get_prefs()["tips"])
         get_prefs().changed.connect(lambda: self.w.xpTip.setVisible(get_prefs()["tips"]))
         w.lnkExport.clicked.connect(lambda: self.openSpecial.emit("export"))
-        w.lnkComputer.clicked.connect(lambda: self.openApp.emit(0))
+        w.lnkComputer.hide()                                  # My Computer was redundant with My OS Lab
         w.lnkDocs.clicked.connect(lambda: self.openSpecial.emit("documents"))
         w.lnkPanel.clicked.connect(lambda: self.openApp.emit(9))
         for b in (w.boxTasksHead, w.boxPlacesHead, w.boxDetailsHead):
@@ -388,7 +402,7 @@ class StartMenu(QFrame):
         right = QFrame(); right.setObjectName("smRight"); right.setFixedWidth(190)
         rl = QVBoxLayout(right); rl.setContentsMargins(4, 8, 4, 8); rl.setSpacing(2)
         for text, ico, fn in (("My OS Lab", "xp_folder", lambda: self._special("explorer")), ("My Documents", "xp_folder", lambda: self._special("documents")),
-                              ("My Computer", "xp_computer", lambda: self._open(0)), ("Control Panel", "xp_control", lambda: self._open(9))):
+                              ("Control Panel", "xp_control", lambda: self._open(9))):
             b = QPushButton("  " + text); b.setProperty("role", "smright"); b.setIcon(QIcon(icon_path(ico))); b.setIconSize(QSize(30, 30))
             b.clicked.connect(lambda _=False, f=fn: f()); rl.addWidget(b)
         rl.addSpacing(10)
@@ -530,9 +544,7 @@ class XPDesktop(QWidget):
     # ---------------------------------------------------------------- desktop icons
     def _make_shortcuts(self):
         self.shortcuts, self.cells, self._moved = [], {}, False
-        specs = [("xp_computer", "My Computer", "My Computer — all applications", False, lambda: self.open_app(0)),
-                 ("xp_folder", "My OS Lab", "My OS Lab — folder of applications", False, lambda: self.special("explorer")),
-                 ("xp_control", "Control Panel", "Control Panel — preferences", False, lambda: self.open_app(9))]
+        specs = [("xp_folder", "My OS Lab", "My OS Lab — folder of applications", False, lambda: self.special("explorer"))]
         for i, (name, sub) in enumerate(XP_APPS):
             specs.append((ICONS[i], name, f"{name} — {sub}\nDouble-click to open", True, lambda i=i: self.open_app(i + 1)))
         for ic, tx, tip, is_sc, fn in specs:
@@ -637,18 +649,24 @@ class XPDesktop(QWidget):
         return self.pages[idx]
 
     def open_app(self, idx):
+        if idx == 0:                                          # old "My Computer" entry points now lead to My OS Lab
+            return self.special("explorer")
         if self.prefs["sounds"] and idx not in self.windows:
             QApplication.beep()
         win = self.windows.get(idx)
         if win is None:
             page = self.ensure_page(idx)
-            title = page.TITLE if idx not in (0,) else "My Computer"
-            win = self.make_window(idx, title, icon_for(idx))
+            win = self.make_window(idx, page.TITLE, icon_for(idx))
             win.set_page(page)
+            if idx == 9:                                      # the 'My computer' sidebar entry is gone in XP
+                page.w.navHome.hide()
+                page.w.lblWs.hide()
             page.on_open()
             page.mark_nav() if hasattr(page, "mark_nav") else None
             W, H = self.wall.width(), self.wall.height()
-            w, h = min(1124, W - 140), min(760, H - 30)
+            need = page.minimumSizeHint()                     # open large enough to show everything without scrolling
+            w = min(W - 20, max(1124, need.width() + 12))
+            h = min(H - 20, max(760, need.height() + 90))
             off = (self.cascade % 5) * 26
             self.cascade += 1
             win.setGeometry(min(110 + off, max(0, W - w)), min(18 + off, max(0, H - h)), w, h)
@@ -713,9 +731,9 @@ class XPDesktop(QWidget):
                 win = self.make_window("explorer", "My OS Lab", "xp_folder")
                 win.explorer = ex
                 ex.status.connect(win.w.lblStatus.setText)
-                win.w.bodyHost.layout().addWidget(ex)
+                win.set_body(ex)
                 win.w.lblStatus.setText("8 objects")
-                win.w.lblStatusR.setText("My Computer")
+                win.w.lblStatusR.setText("My OS Lab")
                 win.build_menus(self.explorer_menus(ex))
                 W, H = self.wall.width(), self.wall.height()
                 w, h = min(1060, W - 250), min(665, H - 100)

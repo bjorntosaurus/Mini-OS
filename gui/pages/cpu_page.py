@@ -11,6 +11,7 @@ from gui.widgets.charts import GanttWidget
 from gui.widgets.common import clear_layout
 from models.records import Process
 from utils.helpers import pid_color
+from utils.parsers import parse_processes
 from utils.validators import ValidationError, parse_int
 
 
@@ -18,7 +19,7 @@ from utils.validators import ValidationError, parse_int
 class ProcessRow(QFrame):
     """One card of the process rack: ID | arrival | burst | priority | remove."""
 
-    def __init__(self, pid, arrival, burst, priority, color, on_remove):
+    def __init__(self, pid, arrival, burst, priority, color, on_remove, on_enter=None):
         super().__init__()
         self.setProperty("card", "plain")
         self.setFixedHeight(62)
@@ -47,6 +48,8 @@ class ProcessRow(QFrame):
             e = QLineEdit(str(val))
             e.setProperty("kind", "cell")
             e.setMinimumWidth(34)
+            if on_enter:
+                e.returnPressed.connect(lambda: on_enter(self))          # Enter = next row
             col.addWidget(lb)
             col.addWidget(e)
             w = QWidget()
@@ -100,6 +103,12 @@ class CpuPage(BasePage):
         for b, a in ((w.btnFCFS, "FCFS"), (w.btnSJF, "SJF"), (w.btnRR, "RR"), (w.btnPriority, "PRIORITY")):
             b.clicked.connect(lambda _=False, a=a: self.set_algo(a))
         w.btnAdd.clicked.connect(self.add_row)
+        self.btn_bulk = QPushButton("Edit as text…  (paste many)")
+        self.btn_bulk.setProperty("role", "mini")
+        self.btn_bulk.setToolTip("Type or paste all processes at once: one per line, 'id arrival burst [priority]'.\nAlso accepts a block copied from Excel.")
+        self.btn_bulk.clicked.connect(self.bulk_edit)
+        lay = w.rack.layout()
+        lay.insertWidget(lay.indexOf(w.btnAdd), self.btn_bulk)
         w.btnRun.clicked.connect(self.run)
         w.btnFirst.clicked.connect(self.first)
         w.btnPlay.clicked.connect(self.play)
@@ -114,14 +123,38 @@ class CpuPage(BasePage):
     def add_row(self, pid=None, arrival=0, burst=1, priority=1):
         if not isinstance(pid, str):
             pid = f"P{self._next_id()}"
-        row = ProcessRow(pid, arrival, burst, priority, pid_color(len(self.rows)), self.remove_row)
+        row = ProcessRow(pid, arrival, burst, priority, pid_color(len(self.rows)), self.remove_row, self.row_enter)
         row.show_priority(self.algo == "PRIORITY")
         lay = self.w.rackContent.layout()
         lay.insertWidget(lay.count() - 1, row)
         self.rows.append(row)
         self._count()
-        row.ed_pid.setFocus()
+        row.ed["arrival"][0].setFocus()
+        row.ed["arrival"][0].selectAll()
 
+    def row_enter(self, row):
+        """Enter in a row jumps to the next row; on the last row it creates a new one (fast keyboard entry)."""
+        i = self.rows.index(row)
+        if i == len(self.rows) - 1:
+            self.add_row(None, 0, "", 1)
+        else:
+            nxt = self.rows[i + 1].ed["arrival"][0]
+            nxt.setFocus(); nxt.selectAll()
+
+    @safe
+    def bulk_edit(self):
+        """One text box for the whole process list (prefilled with the current rows; applying replaces them)."""
+        cur = "\n".join(" ".join(r.raw()) for r in self.rows)
+        fields = [dict(key="text", label="Processes", kind="multi", default=cur, height=240)]
+        res = self.ask("Edit processes as text", fields, lambda v: parse_processes(v["text"]),
+                       "One process per line:  id  arrival  burst  [priority].  Separate with spaces, commas or tabs "
+                       "(a block pasted from Excel works). Lines starting with # are ignored. Without an id, P1, P2… are generated.")
+        if res is None:
+            return
+        self.clear_rows()
+        for pid, a, b, pr in res:
+            self.add_row(pid, a, b, pr if pr else 1)
+        self.say(f"{len(res)} processes entered")
     def _next_id(self):
         used = {r.ed_pid.text() for r in self.rows}
         i = len(self.rows) + 1
@@ -307,7 +340,7 @@ class CpuPage(BasePage):
     def menus(self):
         return {
             "File": [("Reset", self.reset), None, ("Export results (CSV)…", self.export)],
-            "Processes": [("Add process", self.add_row), ("Remove last process", self.remove_last), ("Clear all", self.reset)],
+            "Processes": [("Add process", self.add_row), ("Edit as text… (paste many)", self.bulk_edit), ("Remove last process", self.remove_last), ("Clear all", self.reset)],
             "Timeline": [("First", self.first), ("Play", self.play), ("Step", self.step), None, ("Show execution order", self.show_order)],
             "Compare policies": [("Compare all algorithms…", self.compare)],
             "Help": [("About this simulator", self.about)],

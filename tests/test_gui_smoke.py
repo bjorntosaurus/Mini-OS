@@ -170,7 +170,8 @@ def xp(win):
 
 def test_xp_has_shortcuts_for_every_app_and_no_badges(xp):
     names = [s.lbl.text() for s in xp.shortcuts]
-    for n in ("My Computer", "My OS Lab", "Control Panel", "Dispatch", "Safehouse", "Pageport", "Framelog", "Segment Studio", "Gapscan", "Seek", "Resident"):
+    assert "My Computer" not in names and "Control Panel" not in names        # redundant / already in the Start menu
+    for n in ("My OS Lab", "Dispatch", "Safehouse", "Pageport", "Framelog", "Segment Studio", "Gapscan", "Seek", "Resident"):
         assert n in names
     assert not hasattr(xp, "badges")
     assert len({tuple(xp.cells[s]) for s in xp.shortcuts}) == len(xp.shortcuts)       # no two icons share a cell
@@ -211,8 +212,10 @@ def test_xp_window_controls(xp):
 
 
 def test_xp_every_app_window_and_explorer(xp):
-    for i in range(10):
+    for i in range(1, 10):
         xp.open_app(i)
+    xp.open_app(0)                                           # legacy "My Computer" entry now just shows My OS Lab
+    assert xp.windows["explorer"].isVisible() and 0 not in xp.windows
     xp.special("explorer")
     ex = xp.windows["explorer"].explorer
     ex.w.edAddr.setText("C:\\Kernel\\Applications\\Seek"); ex.go()
@@ -243,3 +246,43 @@ def test_xp_real_image_wallpapers(xp, tmp_path):
     xp.use_dropped_images([pics[1]]); assert xp.wall.spec == "file:" + pics[1] and xp.wall.mode == "Fill"
     assert not render(xp.wall.spec, "Fill", QSize(300, 200)).isNull()
     xp.store_wallpaper("builtin:meadow", "Fill", [])
+
+
+def test_xp_windows_scroll_instead_of_cutting_content(xp):
+    from PySide6.QtWidgets import QScrollArea
+    for i in range(1, 9):
+        xp.open_app(i)
+        win = xp.windows[i]
+        sa = win.w.bodyHost.findChild(QScrollArea)
+        need = win.page.minimumSizeHint()
+        win.resize(520, 380)                                 # much smaller than any app needs
+        QApplication.processEvents()
+        assert sa.horizontalScrollBar().maximum() > 0 or sa.verticalScrollBar().maximum() > 0, f"app {i} would be cut off"
+        win.resize(max(1124, need.width() + 12), max(760, need.height() + 90))
+        QApplication.processEvents()
+        assert sa.horizontalScrollBar().maximum() == 0 and sa.verticalScrollBar().maximum() == 0, f"app {i} needs scrolling at default size"
+
+
+def _feed(page, monkeypatch, values):
+    monkeypatch.setattr(type(page), "ask", lambda self, title, fields, parse, intro=None: parse(values))
+
+
+def test_bulk_text_entry_everywhere(win, monkeypatch):
+    cpu, bank, pag, rep, seg, frag, disk, multi = win.pages[1:9]
+    _feed(cpu, monkeypatch, {"text": "P1 0 5\nP2 1 3\nP3 2 1\nP4 3 2"})
+    cpu.bulk_edit(); assert len(cpu.rows) == 4
+    cpu.set_algo("FCFS"); cpu.run(); assert cpu.w.lblAvgWait.text() == "4.00 ms"
+    cpu.rows[-1].ed["burst"][0].returnPressed.emit(); assert len(cpu.rows) == 5          # Enter on the last row adds a row
+    _feed(cpu, monkeypatch, {"text": "\n".join(f"P{i} {i % 9} {i % 7 + 1}" for i in range(300))})
+    cpu.bulk_edit(); assert len(cpu.rows) == 300
+    _feed(bank, monkeypatch, {"av": "3 3 2", "al": "0 1 0\n2 0 0\n3 0 2\n2 1 1\n0 0 2", "mx": "7 5 3\n3 2 2\n9 0 2\n2 2 2\n4 3 3"})
+    bank.bulk_edit(); assert bank.n == 5 and bank.w.lblState.text().startswith("✓")
+    _feed(pag, monkeypatch, {"text": "3 1 5 2 -"})
+    pag.bulk_edit(); assert pag.w.tblPages.rowCount() == 5 and pag.w.spinFrames.value() >= 6
+    pag.w.edAddr.setText("2172"); pag.do_translate(); assert pag.w.lblPhys.text() == "5,244 B"
+    _feed(seg, monkeypatch, {"text": "0 Code 1000 600 rx\n1 Data 2400 400\n2 4000 800"})
+    seg.bulk_edit(); assert len(seg.segs) == 3
+    _feed(multi, monkeypatch, {"text": "P1 128 25 80\nP2 256 10 50% 2 3"})
+    multi.bulk_edit(); assert len(multi.progs) == 2
+    for pg in (cpu, bank, pag, seg, multi):
+        pg.reset()

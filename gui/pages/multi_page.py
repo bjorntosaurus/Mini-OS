@@ -7,7 +7,9 @@ from gui.pages.base import BasePage, safe
 from gui.widgets.charts import CurveWidget, StateTimelineWidget
 from gui.widgets.common import ClickableFrame, apply_shadows, clear_layout, mk_label
 from models.records import Program
+from utils.parsers import parse_programs
 from utils.validators import ValidationError, parse_float, parse_int
+from PySide6.QtWidgets import QWidget
 
 COLORS = ["#84d9e0", "#c5b3f2", "#ffa3c4", "#c4f06a", "#ffcc62", "#ff9970", "#a9b4f9", "#9be3b0"]
 STATE_TXT = {"R": "RUNNING", "Y": "READY", "W": "I/O WAIT", "Q": "QUEUED", "D": "COMPLETED", "-": "NOT ARRIVED"}
@@ -122,11 +124,19 @@ class MultiPage(BasePage):
             f.clicked.connect(lambda i=i: self.edit_program(i))
             f.setToolTip("Click to edit this program")
             lay.addWidget(f)
-        add = QPushButton("+ Add\nprogram")
-        add.setProperty("role", "plain")
-        add.setFixedSize(110, 112)
+        box = QWidget()
+        bl = QVBoxLayout(box)
+        bl.setContentsMargins(0, 0, 0, 0)
+        bl.setSpacing(8)
+        add = QPushButton("+ Add program")
         add.clicked.connect(self.add_program)
-        lay.addWidget(add)
+        bulk = QPushButton("Paste list…")
+        bulk.setToolTip("Enter all programs at once: name memory cpu io% [resources] [arrival]")
+        bulk.clicked.connect(self.bulk_edit)
+        for b in (add, bulk):
+            b.setFixedSize(124, 52)
+            bl.addWidget(b)
+        lay.addWidget(box)
         lay.addStretch(1)
         apply_shadows(self.w.cardsHost, self.pal["shadow"], 4)
         pct = used / self.total_mem * 100
@@ -184,6 +194,26 @@ class MultiPage(BasePage):
             self.progs[i] = r
         if r:
             self.after_change()
+
+    @safe
+    def bulk_edit(self):
+        """All programs as text (prefilled with the current ones; applying replaces the list)."""
+        cur = "\n".join(f"{p.name} {p.memory} {p.cpu_time} {p.io_wait * 100:g} {p.resources} {p.arrival}" for p in self.progs)
+        fields = [dict(key="text", label="Programs", kind="multi", default=cur, height=220)]
+
+        def parse(v):
+            progs = parse_programs(v["text"])
+            if not progs:
+                raise ValidationError("Enter at least one program.")
+            simulate(progs, self.total_mem, self.total_res, self.seed, self.quantum) if len(progs) < 40 else None   # validates sizes
+            return progs
+        r = self.ask("Edit programs as text", fields, parse,
+                     "One program per line:  name  memory(MB)  cpu_ticks  io_wait(%)  [resource_units]  [arrival_tick].   Example:  P1 128 25 80   "
+                     "or  P2 256 10 50% 2 3.   Separate with spaces, commas or tabs.")
+        if r:
+            self.progs = r
+            self.after_change()
+            self.say(f"{len(r)} programs entered")
 
     def after_change(self):
         self.sim, self.tick = None, None
@@ -250,7 +280,7 @@ class MultiPage(BasePage):
 
     def menus(self):
         return {"File": [("Reset", self.reset)],
-                "Resident processes": [("Add program…", self.add_program)],
+                "Resident processes": [("Add program…", self.add_program), ("Paste list… (many programs)", self.bulk_edit)],
                 "Capacity model": [("System resources…", self.system_dialog), ("Show model curve", lambda: self.w.btnModel.click())],
                 "What-if planner": [("Run simulation", self.run_sim), ("Sync n and p with programs", self.sync_model)],
                 "Help": [("About", lambda: self.show_text("Multiprogramming", "Left: the classic model U = 1 − pⁿ.\n"

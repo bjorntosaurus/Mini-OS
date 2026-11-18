@@ -7,6 +7,8 @@ from PySide6.QtWidgets import QAbstractItemView, QComboBox, QFrame, QTableWidget
 from algorithms.paging import frame_map, translate, validate_config
 from gui.pages.base import BasePage, safe
 from gui.widgets.common import apply_shadows, clear_layout, mk_label
+from PySide6.QtWidgets import QPushButton
+from utils.parsers import parse_page_table
 from utils.validators import ValidationError, parse_int
 
 
@@ -35,6 +37,11 @@ class PagingPage(BasePage):
         t.itemChanged.connect(lambda _i: self.refresh_ram())
         w.btnTranslate.clicked.connect(self.do_translate)
         w.edAddr.returnPressed.connect(self.do_translate)
+        self.btn_bulk = QPushButton("Edit as text…")
+        self.btn_bulk.setProperty("role", "mini")
+        self.btn_bulk.setToolTip("Fill the whole page table in one line, e.g.  3 1 5 2 -")
+        self.btn_bulk.clicked.connect(self.bulk_edit)
+        w.pgBtns.layout().insertWidget(2, self.btn_bulk)
         w.btnAddPage.clicked.connect(lambda: self.add_page())
         w.btnDelPage.clicked.connect(self.del_page)
         w.spinFrames.valueChanged.connect(lambda _v: self.refresh_ram())
@@ -176,6 +183,25 @@ class PagingPage(BasePage):
         w.lblResTag.setText("ADDRESS NOT TRANSLATED YET")
         w.lblFormula.setText("Enter an address and press Translate"); w.lblFormula2.setText("Add pages to the page directory first (+ Page).")
 
+    @safe
+    def bulk_edit(self):
+        """Whole page table as one list: token k = frame of page k, '-' = not resident (page fault)."""
+        try:
+            cur = " ".join("-" if not v or f is None else str(f) for f, v in self.read_table())
+        except ValidationError:
+            cur = ""
+        fields = [dict(key="text", label="Frame of page 0, 1, 2…", kind="multi", default=cur, height=110, hint="3 1 5 2 -")]
+        r = self.ask("Edit page table as text", fields, lambda v: parse_page_table(v["text"]),
+                     "One entry per page, in page order: a frame number means the page is in memory, '-' means it is not resident. "
+                     "Example:  3 1 5 2 -   (page 0→frame 3, page 1→frame 1, …, page 4 not resident). 'page:frame' pairs such as 0:3 4:- also work.")
+        if r is None:
+            return
+        frames = [f for f, v in r if v and f is not None]
+        if frames and max(frames) >= self.w.spinFrames.value():
+            self.w.spinFrames.setValue(max(frames) + 1)               # make sure every named frame exists
+        self.set_table(r)
+        self.say(f"Page table entered: {len(r)} pages")
+
     def reset(self):
         self.w.spinFrames.setValue(4)
         self.set_table([])
@@ -186,7 +212,7 @@ class PagingPage(BasePage):
     def menus(self):
         return {"File": [("Reset", self.reset)],
                 "Address translator": [("Translate address", self.do_translate)],
-                "Page directory": [("Add page", self.add_page), ("Remove selected page", self.del_page)],
+                "Page directory": [("Edit as text…", self.bulk_edit), ("Add page", self.add_page), ("Remove selected page", self.del_page)],
                 "Physical memory": [("Refresh frame map", self.refresh_ram)],
                 "Help": [("About", lambda: self.show_text("Paging", "page = address ÷ page size, offset = address mod page size.\n"
                          "Edit the page directory (frame number and Yes/No valid flag). Pages beyond the table are invalid addresses; "

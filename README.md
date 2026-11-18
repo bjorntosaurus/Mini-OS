@@ -18,13 +18,21 @@ It ships with **two desktops** that host the same neo-brutalist simulators:
 | 7 | Seek | Disk scheduling | FCFS, SSTF, SCAN, C-SCAN, LOOK, C-LOOK, direction + disk limits |
 | 8 | Resident | Multiprogramming | U = 1 − pⁿ model + seeded tick simulation (memory, resource units, running/ready/I-O-wait/queued/done) |
 
+## Documentation
+| Document | Contents |
+|---|---|
+| **docs/SETUP.md** | required libraries and versions, install, run, tests, Qt Designer, troubleshooting |
+| **docs/MODULES.md** | every module: purpose, inputs (incl. fast text entry), outputs, algorithm steps, formulas, validation, complexity, files |
+| docs/ALGORITHMS.md | one-page algorithm summary |
+| samples/ | reference cases checked by the tests (nothing is pre-loaded in the apps) |
+
 ## Commands (Windows / PyCharm terminal)
 ```
 pip install -r requirements.txt          # 1. install dependencies
 pyside6-designer ui\cpu_scheduling.ui     # 2. open any .ui file in Qt Designer (ui\*.ui)
 pyside6-uic ui\cpu_scheduling.ui -o gui\ui_cpu_scheduling.py   # 3. (optional) generate Python from a .ui
 python main.py                           # 4. run the application
-python -m pytest -q                      # 5. run the tests (89)
+python -m pytest -q                      # 5. run the tests (104)
 ```
 In PyCharm: open the folder, set the interpreter that has the requirements, right-click `main.py` → Run.
 
@@ -46,6 +54,16 @@ gui/widgets/       custom painted widgets            samples/      sample inputs
 gui/theme.py       palettes + QSS                    assets/       icons (extracted from the Figma PDF), fonts (Inter, JetBrains Mono)
 tools/             make_ui.py, extract_icons.py, screenshots.py
 ```
+
+## Algorithm documentation
+See `docs/ALGORITHMS.md` for a plain-language summary of every algorithm. The source in `algorithms/` carries a docstring on every function and a comment on every logical block.
+
+## Fast input
+Where typing one row at a time would be slow, every app offers a whole-table text box (spaces / commas / tabs / Excel paste): CPU scheduling *Edit as text…* (+ Enter-key row entry), Banker's *Enter matrices…*,
+Paging *Edit as text…*, Segmentation *Edit as text…*, Multiprogramming *Paste list…*. Page replacement, Fragmentation and Disk scheduling already take a whole list in one box. Formats are in docs/MODULES.md.
+
+## Windows never cut off content
+Each app opens large enough to show everything; if you shrink the window, scroll bars appear instead of clipping.
 
 ## Behaviour notes / conventions
 * **No fixed limits**: processes, resources, frames, page-table rows, segments, blocks, requests and programs are unlimited (add/remove buttons, comma lists, scrolling).
@@ -69,13 +87,13 @@ Every simulator opens **empty** — no sample data is built into any app. You ty
 * The wallpaper is painted once into a cached pixmap (rebuilt ~120 ms after a resize settles); the clock only repaints when the minute changes.
 * `python tools/bench.py` prints rough repaint / window-drag timings (offscreen). On the dev machine a window-drag step went from ~89 ms to ~14 ms.
 
-## My Computer vs My OS Lab
-*My OS Lab* is the folder window of the eight applications (address bar, search, views). *My Computer* opens the Kernel home screen (the same eight apps with a sidebar and the Start-with-CPU banner).
+## My OS Lab
+*My OS Lab* is the folder window of the eight applications (address bar, search, views). *My Computer* was removed from the XP desktop as redundant (it only exists on the Kernel / 98 desktop as its home screen). The Control Panel icon is no longer on the desktop; it is in the Start menu.
 
 ## XP desktop features (all functional)
 Desktop shortcuts (double-click, drag, right-click → Open), desktop context menu, My OS Lab explorer (Back / Forward / Up history, Address bar — try `C:\Kernel\Applications\Seek`, Search filter, Views large/small icons,
-Folders pane toggle, System tasks links, Other places), Start menu (apps, My OS Lab/Documents/Computer, Control Panel, Run…, Search, Help, All Programs, Log off, Turn off),
-task-bar buttons (click to restore/minimise), quick-launch icons, clock. *My Computer* opens the Kernel home page, *Control Panel* opens Settings.
+Folders pane toggle, System tasks links, Other places), Start menu (apps, My OS Lab/Documents, Control Panel, Run…, Search, Help, All Programs, Log off, Turn off),
+task-bar buttons (click to restore/minimise), quick-launch icons, clock. *Control Panel* (Start menu / quick-launch) opens Settings.
 
 ## Known limitations
 * XP desktop: no Recycle Bin / My Documents browser (My Documents opens your Documents folder in the OS file manager); the XP "Control Panel" is the same Settings screen as Kernel / 98; the

@@ -1,7 +1,11 @@
-PySide6>=6.6
-matplotlib>=3.7
-pytest>=7.0
-# only needed by tools/extract_icons.py (re-extracting icons from the Figma PDF):
-pymupdf>=1.23
-pillow>=10.0
-numpy>=1.24
+# ---- needed to RUN the simulator -------------------------------------------------
+PySide6>=6.6,<7          # Qt 6 GUI (tested with 6.12.0); also provides pyside6-designer and pyside6-uic
+matplotlib>=3.7          # only for CPU scheduling > Compare policies (tested with 3.11.2)
+
+# ---- needed to RUN THE TESTS ------------------------------------------------------
+pytest>=7.0              # tested with 9.2.0
+
+# ---- OPTIONAL: only for tools/extract_icons.py (re-extracting artwork from the Figma PDF)
+# pymupdf>=1.23
+# pillow>=10.0
+# numpy>=1.24
